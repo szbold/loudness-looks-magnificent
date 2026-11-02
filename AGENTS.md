@@ -33,12 +33,12 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
    adapters).
 4. **Verify** locally: `just verify` (format, clippy, unit, e2e, build).
    Iterate until green.
-5. **Self-review before push**: launch the `reviewer` subagent over the diff
-   (diff vs `main`); resolve findings or justify them in the PR.
-6. **Docs in the same PR**: update the doc comments now; update
+5. **Docs in the same PR**: update the doc comments now; update
    PRODUCT/ARCHITECTURE/CONVENTIONS if this PR changes shape, behavior, or
    process (changes to requirements themselves need spec change control, see
-   below).
+   below). Docs precede review so the reviewer sees the final diff.
+6. **Self-review before push**: launch the `reviewer` subagent over the diff
+   (diff vs `main`); resolve findings or justify them in the PR.
 7. **Ship**: commit (Conventional Commits format + `Co-Authored-By: OpenCode
    <noreply@opencode.ai>` trailer), push, open the PR with a What/Why/How-tested
    body, wait for CI, merge with squash when green, delete the branch.
@@ -66,6 +66,12 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
 - Built-in explore-type subagents — use for codebase orientation and spec
   lookup instead of slow manual greps. Cheaper and less error-prone.
 
+Both custom subagents are materialized as OpenCode definitions
+(`.opencode/agents/`) with read-only permission rules; command entry points
+live in `.opencode/commands/` (`/feature`, `/fix`, `/ship`, `/review`,
+`/verify`); project-wide allow/deny rules in `opencode.json` deny force
+pushes and direct `main` pushes at the tool level.
+
 ## Requirements and change control
 
 - Implement **only** to `docs/PRODUCT.md`. Do not invent behavior beyond the
@@ -82,7 +88,11 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
 - Conventional Commits grammar + `Co-Authored-By: OpenCode
   <noreply@opencode.ai>` trailer on every commit — mechanically enforced by
   `.githooks/` (install with `just setup`). CI re-checks everything anyway.
-- No direct `main` pushes, no force pushes, no amending pushed commits.
+- No direct `main` pushes, no force pushes, no amending pushed commits. The
+  whole force-push family (`--force`, `-f`, `+refspec`, `--mirror`, `--all`,
+  refspec deletions) and pushes to `main` are additionally denied at the tool
+  level via `opencode.json`; re-publishing a rewritten branch that was already
+  pushed is a human step, never an agent workaround.
 - Keep `Cargo.lock` in sync with dependency PRs (separate `chore(tools)` PRs).
 
 ## Performance and safety red lines
@@ -131,6 +141,10 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
       confirmed working; still pending: enable "Allow auto-merge"; require
       `quality`/`e2e`/`security` status checks + linear history in the ruleset;
       install the Renovate GitHub app
-- [ ] Agent wiring: `opencode.json` permissions, `reviewer`/`planner`
-      subagents, `/feature /fix /ship /review /verify` commands (PR #4)
+- [x] Agent wiring: `opencode.json` permission rules (project-wide autonomy
+      with tool-level red lines), `reviewer`/`planner` subagents
+      (`.opencode/agents/`), `/feature /fix /ship /review /verify` commands
+      (`.opencode/commands/`); the last-match-wins rule array denies the full
+      force-push family, multi-branch mutations, refspec deletions, and direct
+      `main` pushes at the tool level
 - [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1`
