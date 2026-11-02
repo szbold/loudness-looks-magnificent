@@ -4,7 +4,11 @@
     ".": {
       "release-type": "rust",
       "include-component-in-tag": false,
-      "bootstrap-sha": "d5b2ae1881cb7138431fe331cc710c8c329e0e01"
+      "bootstrap-sha": "d5b2ae1881cb7138431fe331cc710c8c329e0e01",
+      "prerelease": true,
+      "prerelease-type": "alpha",
+      "release-as": "1.0.0-alpha.1",
+      "include-v-in-tag": true
     }
   }
 }
