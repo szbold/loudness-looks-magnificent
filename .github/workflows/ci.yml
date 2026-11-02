@@ -45,7 +45,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@toolchain
+      - name: toolchain (rust-toolchain.toml pin)
+        run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
       - name: e2e (headless, no audio device / no GPU needed — NFR-6)
         run: cargo test --test e2e
