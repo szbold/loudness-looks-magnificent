@@ -52,6 +52,30 @@ jobs:
       - name: e2e (headless, no audio device / no GPU needed — NFR-6)
         run: cargo test --test e2e
 
+  # Software-GPU provisioning for adapter-level render tests (M1 plan T4).
+  # Deliberately separate from e2e: the headless suite stays device-free
+  # (NFR-6); this is the only job that requires a (software) device. The
+  # probe runs before any build so a broken runner-side Vulkan wastes no
+  # build minutes. Informational check until the offscreen-render task
+  # (T5) hangs the adapter-level tests on it; promotion to a required
+  # check is a repo-ruleset edit owned by the human.
+  render-adapter:
+    name: render-adapter
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: install lavapipe (software Vulkan)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers libvulkan1 vulkan-tools
+      - name: probe ICD and device
+        shell: bash
+        run: |
+          ls /usr/share/vulkan/icd.d/
+          set -o pipefail
+          vulkaninfo --summary 2>&1 | tee /tmp/vulkaninfo.txt
+          grep -iq "llvmpipe" /tmp/vulkaninfo.txt
+
   security:
     name: security
     runs-on: ubuntu-latest
