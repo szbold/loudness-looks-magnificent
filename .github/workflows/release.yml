@@ -31,7 +31,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@toolchain
+      - name: toolchain (rust-toolchain.toml pin)
+        run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release
       - name: package

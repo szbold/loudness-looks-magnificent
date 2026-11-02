@@ -24,8 +24,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      # Honors the rust-toolchain.toml pin — same toolchain as local runs.
-      - uses: dtolnay/rust-toolchain@toolchain
+      - name: toolchain (rust-toolchain.toml pin)
+        run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
       - name: fmt
         run: cargo fmt --all -- --check
