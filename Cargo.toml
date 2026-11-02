@@ -9,7 +9,12 @@ license = "Unlicense"
 # bootstrap binary layer, `thiserror` for typed errors.
 [dependencies]
 clap = { version = "4", default-features = false, features = ["std", "help", "usage"] }
+pollster = "1.0.1"
 thiserror = "2"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+wgpu = "30.0.1"
+winit = "0.30.13"
 
 [dev-dependencies]
 proptest = "1"
