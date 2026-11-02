@@ -147,4 +147,9 @@ pushes and direct `main` pushes at the tool level.
       (`.opencode/commands/`); the last-match-wins rule array denies the full
       force-push family, multi-branch mutations, refspec deletions, and direct
       `main` pushes at the tool level
-- [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1`
+- [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1` — **in progress**
+      (plan: FR-M1-3/FR-M1-6-core already green from bootstrap; week 0 =
+      alpha-track pin, `chore(tools)` deps, RFC 0001 config-schema /
+      RFC 0002 latency-surface drafts; then route A (lavapipe CI → offscreen
+      wgpu → cube scene → winit loop) and route B (capture contract → pulse
+      adapter), then `--config`, perf evidence, release)
