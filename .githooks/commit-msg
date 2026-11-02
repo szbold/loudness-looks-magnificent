@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# commit-msg — enforce Conventional Commits grammar on the first non-comment
+# line (docs/CONVENTIONS.md "Git, commits, and PRs"). This is the grammar the
+# release automation parses, so it is not negotiable.
+set -euo pipefail
+
+msg_file="$1"
+
+# Comment-only message → editor abort; nothing to validate.
+first=$(grep -m1 -v '^#' -- "$msg_file" || true)
+if [ -z "$first" ]; then
+  exit 0
+fi
+
+pattern='^(feat|fix|docs|refactor|test|chore|perf|build|ci)(\([a-z0-9_-]+\))?!?: .+'
+if ! printf '%s' "$first" | grep -Eq -- "$pattern"; then
+  echo "commit-msg: rejected: '${first}'" >&2
+  echo "commit-msg: required: type(scope): subject — type ∈ feat|fix|docs|refactor|test|chore|perf|build|ci (docs/CONVENTIONS.md)" >&2
+  exit 1
+fi
+
+len=${#first}
+if [ "$len" -gt 100 ]; then
+  echo "commit-msg: subject is ${len} chars; keep it <= 100" >&2
+  exit 1
+fi
+
+if ! grep -qi -- 'Co-Authored-By: OpenCode' "$msg_file"; then
+  echo "commit-msg: note: no OpenCode co-author trailer (prepare-commit-msg normally adds it)" >&2
+fi

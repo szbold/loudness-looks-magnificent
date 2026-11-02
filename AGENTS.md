@@ -15,7 +15,8 @@
    questions `OQ-*`). Implement against IDs.
 4. `docs/ARCHITECTURE.md` — components, trait seams, threading.
 5. `docs/CONVENTIONS.md` — coding/error/doc/test/commit rules (normative).
-6. `justfile` — the command surface (once the pipeline bootstrap lands).
+6. `justfile` — the single command surface (`just verify` is the local CI
+   mirror).
 
 If a file on this list does not exist yet, proceed with what exists and state
 the gap explicitly in your PR body (early-repo mode, see Current state below).
@@ -79,8 +80,8 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
 ## Git hygiene
 
 - Conventional Commits grammar + `Co-Authored-By: OpenCode
-  <noreply@opencode.ai>` trailer on every commit (hook-enforced post-bootstrap;
-  manual until then).
+  <noreply@opencode.ai>` trailer on every commit — mechanically enforced by
+  `.githooks/` (install with `just setup`). CI re-checks everything anyway.
 - No direct `main` pushes, no force pushes, no amending pushed commits.
 - Keep `Cargo.lock` in sync with dependency PRs (separate `chore(tools)` PRs).
 
@@ -114,10 +115,14 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
 
 - [x] Spec package: `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`,
       `docs/CONVENTIONS.md`, `README.md`, `LICENSE` (pub-domain Unlicense)
-- [ ] Pipeline bootstrap: Rust scaffold + `justfile` + `.githooks/` +
-      lint gates (PR #2 in roadmap)
+- [x] Pipeline bootstrap: Rust scaffold + pinned toolchain
+      (`rust-toolchain.toml`) + lint gates (`[lints]`: `forbid(unsafe_code)`,
+      unwrap/expect/panic denied) + `.githooks/` (co-author trailer, commit
+      grammar, pre-commit fmt, pre-push `just verify`) + `justfile` +
+      headless loop (deterministic fake source → loudness → scale mapping →
+      frame counter, tested at unit/integration/e2e layers)
 - [ ] CI/CD: Actions workflows (quality/e2e/security), release automation,
-      Renovate (PR #3)
+      Renovate (PR #3 in roadmap)
 - [ ] Agent wiring: `opencode.json` permissions, `reviewer`/`planner`
       subagents, `/feature /fix /ship /review /verify` commands (PR #4)
 - [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1`

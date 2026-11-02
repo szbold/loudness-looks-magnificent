@@ -18,10 +18,14 @@ once the pipeline bootstrap lands; until then it is enforced by review.
 - Crate-level `#![forbid(unsafe_code)]` in every crate. There MUST be zero
   local `unsafe` (spec NFR-5). If ever truly required: RFC + local `allow` +
   `// SAFETY:` justification + reviewer subagent sign-off in the PR.
-- `#![deny(clippy::unwrap_used, clippy::expect_used)]` in non-test code. The
-  single allowlisted site is the binary bootstrap path in `main`, and every
-  allowed use carries a `// BOOTSTRAP:` comment explaining why `Result`
-  propagation cannot replace it.
+- `clippy::unwrap_used` and `clippy::expect_used` are denied in non-test code
+  (wired through the `[lints]` crate tables in `Cargo.toml`). Allowlisted:
+  1. the binary bootstrap file `src/main.rs` — every crate-level allowance
+     there carries a `// BOOTSTRAP:` comment explaining why typed `Result`
+     flow cannot replace it; and
+  2. test modules or test files, which may open with an explicit
+     `#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]` —
+     tests may unwrap and panic freely; non-test code may not.
 - `#![warn(missing_docs)]` on public items: every public item gets rustdoc at
   birth.
 - `cargo clippy -D warnings` is a no-exception gate (CI + pre-push).
@@ -67,9 +71,12 @@ once the pipeline bootstrap lands; until then it is enforced by review.
   perf|build|ci` and `scope` ∈ `capture|render|core|preset|docs|tools|ci|
   agents`.
 - Every commit carries the trailer
-  `Co-Authored-By: OpenCode <noreply@opencode.ai>`. After the pipeline
-  bootstrap this is appended by a `prepare-commit-msg` hook; until then agents
-  add it manually.
+  `Co-Authored-By: OpenCode <noreply@opencode.ai>`, appended mechanically by
+  the `prepare-commit-msg` git hook (install with `just setup`).
+- Hooks are enforcement, not decoration: `commit-msg` rejects grammar drift,
+  `pre-commit` checks formatting, `pre-push` runs the full `just verify`.
+  When a hook cannot run (e.g. bare plumbing ops), the same grammar is CI's
+  problem instead.
 - Commit body: imperative, explains *why*, cites requirement IDs when
   applicable (e.g. `Implements FR-M1-4`).
 - Branch names: `feat|fix|docs|chore/<short-slug>`; one purpose per branch.
