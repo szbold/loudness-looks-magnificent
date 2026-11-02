@@ -121,8 +121,13 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
       grammar, pre-commit fmt, pre-push `just verify`) + `justfile` +
       headless loop (deterministic fake source → loudness → scale mapping →
       frame counter, tested at unit/integration/e2e layers)
-- [ ] CI/CD: Actions workflows (quality/e2e/security), release automation,
-      Renovate (PR #3 in roadmap)
+- [x] CI/CD: GitHub Actions — required checks `quality` (fmt + clippy -
+      `-D warnings` + coverage ≥ 70 %) / `e2e` / `security` (gitleaks);
+      release-please (version bump + CHANGELOG + tag → packaged Linux binary
+      artifact); Renovate config (grouped cargo bumps, auto-merge patch/minor)
+- [ ] Repo guardrails (human, one-time): GitHub settings — enable "Allow
+      auto-merge"; protect `main` (require `quality`/`e2e`/`security`, PRs,
+      linear history); install the Renovate GitHub app
 - [ ] Agent wiring: `opencode.json` permissions, `reviewer`/`planner`
       subagents, `/feature /fix /ship /review /verify` commands (PR #4)
 - [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1`

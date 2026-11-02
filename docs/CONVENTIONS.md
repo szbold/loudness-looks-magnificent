@@ -85,6 +85,8 @@ once the pipeline bootstrap lands; until then it is enforced by review.
 - Never: push directly to `main`, force-push, amend pushed commits, mix
   dependency bumps into behavior PRs (separate `chore(tools)` PR).
 - `Cargo.lock` is committed; dependency-bump PRs include the lockfile update.
+- Secret hygiene is enforced by the CI `security` job (gitleaks); the
+  `pre-commit` hook runs the same scan when gitleaks is installed locally.
 
 ## Performance and safety red lines (summary of spec)
 

@@ -9,7 +9,8 @@ coding agents under human product supervision (hence the name).
 
 🚜 **Spec-first, pipeline live.** PR #1 shipped the founding documents; PR #2
 wired the local build/test/e2e loop (hooks + lint gates + `just verify`);
-CI, release automation, and agent commands come next. Read in this order:
+PR #3 wired the remote half (Actions `quality`/`e2e`/`security`, release-please,
+Renovate). Read in this order:
 
 | Read | What it is |
 | ---- | ---------- |

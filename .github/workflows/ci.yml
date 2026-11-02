@@ -1,0 +1,65 @@
+# ci — the remote half of `just verify` (docs/CONVENTIONS.md).
+# Required checks for `main` (AGENTS.md repo guardrails): quality, e2e, security.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow_ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: toolchain (rust-toolchain.toml pin)
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - name: fmt
+        run: cargo fmt --all -- --check
+      - name: clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - name: coverage gate (NFR-7)
+        run: cargo llvm-cov --workspace --all-targets --fail-under-lines 70
+      - name: unit + integration tests
+        run: cargo test --workspace
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: toolchain (rust-toolchain.toml pin)
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - name: e2e (headless, no audio device / no GPU needed — NFR-6)
+        run: cargo test --test e2e
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
