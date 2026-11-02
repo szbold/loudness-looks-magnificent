@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# pre-commit — formatting is the doorstep gate (fast; full verify runs on push).
+set -euo pipefail
+cargo fmt --all -- --check

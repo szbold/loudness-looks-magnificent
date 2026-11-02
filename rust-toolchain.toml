@@ -1,0 +1,5 @@
+# Pinned toolchain: reproducible builds for agents, CI, and humans.
+# Bump = its own chore(tools) PR (CONVENTIONS.md toolchain rules).
+[toolchain]
+channel = "1.99.1"
+components = ["rustfmt", "clippy"]

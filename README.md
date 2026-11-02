@@ -7,8 +7,9 @@ coding agents under human product supervision (hence the name).
 
 ## Status
 
-📝 **Spec-first.** The repo currently ships the founding documents; code lands
-after the pipeline bootstrap. Follow along in this order:
+🚜 **Spec-first, pipeline live.** PR #1 shipped the founding documents; PR #2
+wired the local build/test/e2e loop (hooks + lint gates + `just verify`);
+CI, release automation, and agent commands come next. Read in this order:
 
 | Read | What it is |
 | ---- | ---------- |
@@ -16,6 +17,19 @@ after the pipeline bootstrap. Follow along in this order:
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System structure: trait seams (audio capture, rendering, presets), threading, data flow |
 | [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | Engineering rules: lint policy, error handling, unsafe/unwrap bans, docs, tests, commits |
 | [`AGENTS.md`](AGENTS.md) | The agent constitution: golden loop, definition of done, subagents, change control |
+
+## Quickstart (identical for humans and agents)
+
+```sh
+rustup update   # rust-toolchain.toml pins the exact toolchain version
+just setup      # installs the git hooks (co-author, commit grammar, gates)
+just verify     # local CI mirror: fmt + clippy + tests + e2e
+cargo run -- --headless --fake-audio 7 --frames 180 --fps-report
+```
+
+The headless loop (deterministic synthetic source → loudness → scale mapping →
+frame counter) is the bootstrap render path; window rendering arrives with the
+M1 milestone (FR-M1-1).
 
 ## Highlights of the spec
 

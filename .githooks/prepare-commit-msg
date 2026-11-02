@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# prepare-commit-msg — append the OpenCode co-author trailer to every commit
+# (AGENTS.md "Git hygiene", docs/CONVENTIONS.md). Enforcement is mechanical,
+# not model politeness. Merge/squash-generated messages skip the append.
+set -euo pipefail
+
+msg_file="$1"
+mode="${2-}"
+
+case "$mode" in
+  merge | squash | am) exit 0 ;;
+esac
+
+trailer='Co-Authored-By: OpenCode <noreply@opencode.ai>'
+
+# Already carries some co-author trailer? Leave it untouched.
+if grep -qi -- '^Co-Authored-By:' "$msg_file"; then
+  exit 0
+fi
+
+# Ensure a blank line separates body from trailer (commit graph hygiene).
+if [ -s "$msg_file" ] && [ -n "$(tail -c1 -- "$msg_file")" ]; then
+  printf '\n' >> "$msg_file"
+fi
+printf '%s\n' "$trailer" >> "$msg_file"

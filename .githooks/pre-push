@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# pre-push — full local CI mirror. AGENTS.md golden loop step 4 is enforced
+# here: nothing reaches the remote without fmt + clippy + tests + e2e green.
+set -euo pipefail
+just verify
