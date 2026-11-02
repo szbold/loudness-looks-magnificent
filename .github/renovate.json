@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "lockFileMaintenance": { "enabled": true },
+  "schedule": ["after 3am and before 6am utc"],
+  "packageRules": [
+    {
+      "description": "Group all Rust minor+patch bumps into one PR",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "rust minor+patch"
+    },
+    {
+      "description": "Rust major bumps need review (API risk)",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}

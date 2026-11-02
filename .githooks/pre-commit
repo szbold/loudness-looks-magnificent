@@ -2,3 +2,11 @@
 # pre-commit — formatting is the doorstep gate (fast; full verify runs on push).
 set -euo pipefail
 cargo fmt --all -- --check
+
+# Secret scan: soft locally — the CI `security` job is the hard gate
+# (docs/CONVENTIONS.md). Findings here block the commit when gitleaks exists.
+if command -v gitleaks > /dev/null 2>&1; then
+  gitleaks protect --staged --redact --verbose
+else
+  echo "pre-commit (soft): gitleaks not found; CI 'security' job enforces secret hygiene"
+fi

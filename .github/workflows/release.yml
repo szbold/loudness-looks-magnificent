@@ -1,0 +1,49 @@
+# release — conventional commits → version bump + CHANGELOG + GitHub Release
+# + tagged Linux binary artifact (PRODUCT.md §7). Commits from `main`.
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: .github/release-please-config.json
+          manifest-file: .github/release-please-manifest.json
+
+  binary:
+    name: binary artifacts
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@toolchain
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+      - name: package
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          mkdir -p dist
+          cp -v target/release/loudness-looks-magnificent dist/
+          cp -v LICENSE README.md dist/
+          tar -czf "loudness-looks-magnificent-${TAG:-dev}-x86_64-linux.tar.gz" -C dist .
+      - name: upload to the GitHub Release
+        if: ${{ needs.release-please.outputs.release_created }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: loudness-looks-magnificent-*-x86_64-linux.tar.gz
