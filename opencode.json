@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    { "action": "*", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "ask" },
+    { "action": "read", "resource": "*.env.*", "effect": "ask" },
+    { "action": "shell", "resource": "git push --force*", "effect": "deny" },
+    { "action": "shell", "resource": "git push* --force*", "effect": "deny" },
+    { "action": "shell", "resource": "git push -f *", "effect": "deny" },
+    { "action": "shell", "resource": "git push* -f *", "effect": "deny" },
+    { "action": "shell", "resource": "git push origin main", "effect": "deny" },
+    { "action": "shell", "resource": "git push origin main *", "effect": "deny" },
+    { "action": "shell", "resource": "git push origin main:*", "effect": "deny" },
+    { "action": "shell", "resource": "git push origin HEAD:main*", "effect": "deny" },
+    { "action": "shell", "resource": "git push*:refs/heads/main", "effect": "deny" },
+    { "action": "shell", "resource": "git push* refs/heads/main*", "effect": "deny" },
+    { "action": "shell", "resource": "git push origin +*", "effect": "deny" },
+    { "action": "shell", "resource": "git push* --mirror*", "effect": "deny" },
+    { "action": "shell", "resource": "git push* --all", "effect": "deny" },
+    { "action": "shell", "resource": "git push* :refs/*", "effect": "deny" },
+    { "action": "shell", "resource": "git push origin :main*", "effect": "deny" },
+    { "action": "shell", "resource": "git push* --delete*", "effect": "deny" },
+    { "action": "shell", "resource": "git push* -d *", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" }
+  ]
+}

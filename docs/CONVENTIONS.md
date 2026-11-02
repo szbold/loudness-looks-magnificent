@@ -77,6 +77,10 @@ once the pipeline bootstrap lands; until then it is enforced by review.
   `pre-commit` checks formatting, `pre-push` runs the full `just verify`.
   When a hook cannot run (e.g. bare plumbing ops), the same grammar is CI's
   problem instead.
+- Tool-level push red lines live in `opencode.json` (OpenCode): agents are
+  denied force pushes (`--force`/`-f`/`+refspec`/`--mirror`), refspec
+  deletions, `--all` mutations, and direct pushes to `main` — hooks and CI
+  remain the primary gates; these lines are the last-resort backstop.
 - Commit body: imperative, explains *why*, cites requirement IDs when
   applicable (e.g. `Implements FR-M1-4`).
 - Branch names: `feat|fix|docs|chore/<short-slug>`; one purpose per branch.
