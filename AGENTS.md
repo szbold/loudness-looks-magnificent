@@ -124,10 +124,13 @@ the gap explicitly in your PR body (early-repo mode, see Current state below).
 - [x] CI/CD: GitHub Actions — required checks `quality` (fmt + clippy -
       `-D warnings` + coverage ≥ 70 %) / `e2e` / `security` (gitleaks);
       release-please (version bump + CHANGELOG + tag → packaged Linux binary
-      artifact); Renovate config (grouped cargo bumps, auto-merge patch/minor)
-- [ ] Repo guardrails (human, one-time): GitHub settings — enable "Allow
-      auto-merge"; protect `main` (require `quality`/`e2e`/`security`, PRs,
-      linear history); install the Renovate GitHub app
+      artifact); Renovate config (grouped cargo bumps, auto-merge patch/minor).
+      Bootstrap release `v0.1.0` seeded (tag + tar.gz artifact);
+      `bootstrap-sha` excludes the pre-spec root commit from release scans.
+- [ ] Repo guardrails (human): partial — `main` force-push protection
+      confirmed working; still pending: enable "Allow auto-merge"; require
+      `quality`/`e2e`/`security` status checks + linear history in the ruleset;
+      install the Renovate GitHub app
 - [ ] Agent wiring: `opencode.json` permissions, `reviewer`/`planner`
       subagents, `/feature /fix /ship /review /verify` commands (PR #4)
 - [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1`
