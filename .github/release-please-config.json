@@ -3,7 +3,8 @@
   "packages": {
     ".": {
       "release-type": "rust",
-      "include-component-in-tag": false
+      "include-component-in-tag": false,
+      "bootstrap-sha": "d5b2ae1881cb7138431fe331cc710c8c329e0e01"
     }
   }
 }
