@@ -2,7 +2,7 @@
 
 | Field             | Value                                                        |
 | ----------------- | ------------------------------------------------------------ |
-| Spec version      | 1.0                                                          |
+| Spec version      | 1.1                                                          |
 | Status            | In force                                                     |
 | First published   | 2026-11-02                                                   |
 | Product owner     | @szbold                                                      |
@@ -97,7 +97,10 @@ actually hearing (not the microphone). The application must be:
 
 - **FR-M1-6 Config and headless mode (automation surface)** — CLI flags:
   `--config <file>`, `--headless`, `--frames <N>`, `--fake-audio [seed]`,
-  `--fps-report`. The fake audio source MUST be deterministic for a given seed
+  `--fps-report`, `--latency-report` (the config schema and the latency
+  report surface — incl. `--fake-audio spike:<seed>:<chunk>` — are specified
+  by approved RFCs 0001/0002 under `docs/rfc/`; this list stays closed).
+  The fake audio source MUST be deterministic for a given seed
   so CI runs are reproducible. Headless mode renders offscreen (no window) —
   this is the agent/CI path and a first-class feature, not a debug hack.
 
@@ -242,7 +245,7 @@ Post-M1, releases are automated from Conventional Commits on `main`
 
 ## 9 Measurement procedures
 
-- **Frame rate**: in-app `--fps-report` prints JSON (mean/p95/p99 frame ms,
+- **Frame rate**: in-app `--fps-report` prints JSON (p50/p95/p99 frame ms,
   frame count). E2E asserts counts/exit; hardware fps gate is human-verified
   per milestone and recorded in the PR body. CI runs an *indicative,
   non-blocking* budget on lavapipe only once stable.
@@ -284,3 +287,4 @@ procedures with the recorded evidence.
 | Spec version | Date       | Change                                              |
 | ------------ | ---------- | --------------------------------------------------- |
 | 1.0          | 2026-11-02 | Initial draft from requirements supplied by @szbold |
+| 1.1          | 2026-11-03 | RFC 0001/0002 approved; FR-M1-6 gains `--latency-report`, both RFCs referenced as surface source of truth |
