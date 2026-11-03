@@ -149,10 +149,9 @@ pushes and direct `main` pushes at the tool level.
       `main` pushes at the tool level
 - [ ] M1 MVP: audio-reactive cube (FR-M1-*), `v1.0.0-alpha.1` — **in progress**
       (plan: FR-M1-3/FR-M1-6-core already green from bootstrap; week 0
-      complete — ✓ alpha-track pin, ✓ deps, ✓ RFC 0001 config-schema /
-      RFC 0002 latency-surface merged as Proposed (human approval still
-      gates the `--config` and latency-evidence tasks); then route A
-      (lavapipe CI — this PR, pending its check → offscreen wgpu → cube
-      scene → winit loop) and
-      route B (capture contract → pulse adapter), then `--config`, perf
+      complete — ✓ alpha-track pin, ✓ deps, ✓ lavapipe CI (render-adapter
+      probe green 12 s on PR #12), ✓ RFC 0001/0002 **approved 2026-11-03**
+      (RFC 0002 rev 2: separate `--latency-report` flag; spec bumped to
+      1.1); then route A (offscreen wgpu → cube scene → winit loop) and
+      route B (capture contract → pulse adapter), then `--config`, latency
       evidence, release)

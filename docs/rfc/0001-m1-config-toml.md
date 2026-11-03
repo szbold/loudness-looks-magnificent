@@ -1,8 +1,9 @@
 # RFC 0001 — M1 `--config` TOML schema
 
-- **Status:** Proposed — awaiting human approval. Approval gates the
-  `--config` implementation task in the M1 plan; the human-approval stamp is
-  recorded in the PR body and AGENTS.md Current state when granted.
+- **Status:** Approved — 2026-11-03 (human approval recorded in the agent
+  session; PRODUCT.md 1.1 bump and changelog in the same PR). Unblocks the
+  M1 plan's `--config` implementation task (T10); this document is the
+  schema source of truth, referenced from PRODUCT.md FR-M1-6.
 - **Author:** OpenCode (planner drafted the gap, executor drafted this spec)
 - **Requirement links:** FR-M1-6 (`--config <file>` must exist), FR-M1-3
   (smoothing window default ≤ 50 ms), FR-M1-4 (configurable maximum, rotation
@@ -70,13 +71,13 @@ bit-reproducibility).
 3. **Hot reload** — rejected for M1: text-presets arrive with the M2 preset
    store; startup-only semantics keep the M1 error model honest.
 
-## Rollout (if approved)
+## Rollout
 
 One `feat(core): --config toml tuning surface` PR implementing exactly the
 table above (loader + validation unit tests, trait-level pipeline with a
 custom `[0.6, 2.0]` range, e2e good/bad-file contract tests); the `toml`
 dependency rides that PR. Owed same-PR doc work ships with the code: rustdoc
-on the loaded-config type and the `--help` entry for `--config`. PRODUCT.md remains untouched — if approved, this
-document is the schema source of truth and PRODUCT.md gains only a pointer
-via the standard spec-change-control follow-up (version bump + changelog),
-not a rephrased requirement.
+on the loaded-config type and the `--help` entry for `--config`.
+PRODUCT.md is bumped to 1.1 alongside the approval (version + changelog +
+an FR-M1-6 pointer); this document is the schema source of truth, not a
+rephrased requirement.

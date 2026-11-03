@@ -1,25 +1,47 @@
 # RFC 0002 — M1 latency instrumentation surface
 
-- **Status:** Proposed — awaiting human approval. Approval gates the
-  latency-evidence task in the M1 plan.
+- **Status:** Approved — rev 2, 2026-11-03 (human directive: separate
+  `--latency-report` flag; report schema unchanged from rev 1). Approval
+  unblocks the M1 latency-evidence task (T11); this document is the surface
+  source of truth, referenced from PRODUCT.md 1.1's FR-M1-6.
 - **Author:** OpenCode (planner drafted the gap, executor drafted this spec)
 - **Requirement links:** PRODUCT.md §9 (wire-to-frame latency probe for M1
-  evidence), FR-M1-6 (closed CLI flag list), NFR-6 (deterministic CI, no
-  devices, no wall-clock assertions in tests).
+  evidence), FR-M1-6 (closed flag list — extended by this RFC with
+  `--latency-report`), FR-M1-7 (invalid input → exit 1, one stderr line),
+  NFR-6 (deterministic CI, no devices, no wall-clock assertions in tests).
+
+## Revision log
+
+- **rev 2 (2026-11-03, approved):** `latency_report` is no longer folded into
+  `--fps-report` implicitly. A separate `--latency-report` flag enables it;
+  the report JSON gains the `latency_report` object only when that flag is
+  present. Object schema, derivation, null/no-crossing shape, and the
+  `--fake-audio` parse rules carry over unchanged from rev 1; rev 2 adds the
+  requires-spike one-liner to the error contract.
+- **rev 1 (2026-11-02, proposed):** optional `latency_report` object inside
+  the existing `--fps-report` JSON; no new flag.
 
 ## Motivation
 
 §9 requires the first latency measurement in this milestone, but no defined
-*machine output* exists for it: the FR-M1-6 flag list is closed
-(`--config`, `--headless`, `--frames`, `--fake-audio`, `--fps-report`) and e2e
+*machine output* exists for it: before this RFC the FR-M1-6 flag list was
+closed (`--config`, `--headless`, `--frames`, `--fake-audio`, `--fps-report`)
+— rev 2 extends it with `--latency-report` — and e2e
 may not assert wall-clock values (NFR-6). Deciding how latency is expressed
-without touching a closed flag list is a small but genuinely user-facing
-format decision — RFC material under AGENTS.md change control.
+is a small but genuinely user-facing format decision — RFC material under
+AGENTS.md change control. Rev 1 proposed folding the report into
+`--fps-report`; the product owner chose an explicit flag instead (rev 2), so
+that plain `--fps-report` output never changes shape and the measurement is
+requested deliberately.
 
 ## Proposal
 
-Extend the **existing** `--fps-report` JSON with an optional
-`latency_report` object — additive and backward compatible, no new flag:
+Add one boolean CLI flag, `--latency-report`. When present:
+
+- the run's JSON report is emitted — the flag implies `--fps-report` (asking
+  for a latency measurement with no output would be useless); passing both is
+  fine and prints exactly one JSON object;
+- the object gains a `latency_report` member:
 
 ```json
 {
@@ -32,6 +54,15 @@ Extend the **existing** `--fps-report` JSON with an optional
   }
 }
 ```
+
+- `--latency-report` requires a spike program; without one there is nothing
+  to measure and the run fails with the one-liner from the error contract
+  below. This is about a *missing configured program*: a configured spike
+  whose run ends before crossing is the null case described below — a
+  report, not an error.
+- When `--latency-report` is absent, output is byte-identical to today's
+  `--fps-report` behavior (or no output) — latency instrumentation never
+  changes the default report.
 
 The worked example is derived on the 60 fps reference grid (frame length
 `sample_rate / 60` = 800 samples; a frame's loudness is the shipped engine's
@@ -65,8 +96,6 @@ trailing 50 ms window query at that frame point, src/engine/loudness.rs):
   `latency_report` is still emitted with the program fields, so CI can
   shape-assert both the crossed and the no-crossing variants; null is
   distinguishable from "program missing".
-- When no spike program is set, `latency_report` is simply absent — old
-  consumers keep parsing.
 - CI asserts only shape and integer invariants, named here so the check is
   literally writable: crossed shape — `first_crossing_frame ≥
   spike_first_frame` with `spike_first_frame = floor(spike_chunk_index × 480
@@ -79,34 +108,43 @@ trailing 50 ms window query at that frame point, src/engine/loudness.rs):
 
 ### Error contract (FR-M1-7)
 
-`--fake-audio` parsing moves from clap's `value_parser(u64)` to an app-level
-program grammar, so malformed values leave clap's exit-2 usage path and
-follow FR-M1-7 semantics instead: exit 1, one stderr line. `<seed>` and
-`<chunk>` must be plain unsigned 64-bit integers — preserving the existing
-`value_parser(u64)` domain, so seeds up to 2^64 − 1 keep working and
-out-of-range values hit the same one-line exit — e.g.:
+All failures below exit 1 with one stderr line:
 
-- `error: invalid --fake-audio value 'spike:7' (expected <integer> or spike:<seed>:<chunk>)`
+- `--latency-report` without a spike program:
+  `error: --latency-report requires --fake-audio spike:<seed>:<chunk>`
+- `--fake-audio` parsing moves from clap's `value_parser(u64)` to an app-level
+  program grammar, so malformed values leave clap's exit-2 usage path and
+  follow FR-M1-7 semantics instead. `<seed>` and `<chunk>` must be plain
+  unsigned 64-bit integers — preserving the existing `value_parser(u64)`
+  domain, so seeds up to 2^64 − 1 keep working and out-of-range values hit
+  the same one-line exit — e.g.:
+
+  `error: invalid --fake-audio value 'spike:7' (expected <integer> or spike:<seed>:<chunk>)`
 
 The rollout PR re-checks any existing e2e expectation pinned to clap's
 exit-2 malformed-integer behavior and updates it to the app-level exit 1.
 
 ## Alternatives considered
 
-1. **`--latency-report` flag** — rejected: adds an item to a closed flag
-   list for a capability the existing reporting flag can carry additively.
-2. **Hardware-only measurement** — rejected: NFR-6 wants a CI-verifiable
+1. **Fold into `--fps-report` implicitly (rev 1)** — rejected by the product
+   owner in approval: couples the measurement into the default report and
+   makes the flag surface implicit; an explicit flag keeps plain
+   `--fps-report` output stable by default.
+2. **Require `--fps-report` alongside `--latency-report`** — rejected: a
+   diagnostic flag that errors unless paired with another is a usability
+   trap; implying the report is one line of CLI logic.
+3. **Hardware-only measurement** — rejected: NFR-6 wants a CI-verifiable
    degenerate path too; hardware verification per §9 still happens on the
    reference desktop regardless (the two do not compete).
 
-## Rollout (if approved)
+## Rollout
 
 The spike program and report land with the scripted-fakes + measurement
 planned tasks (deterministic fake first, then the report wiring in the same
-genre of PR); the e2e assertion grows a `latency_report` shape check for both
-the crossed and the no-crossing variants. Owed same-PR doc work ships with
-the code, not later: rustdoc on the report struct and program parser (this
-RFC's formulas + null case), an `--help` line for `--fake-audio` reflecting
-the program grammar, and an "Instrumentation" subsection in ARCHITECTURE.md
-locating `--fps-report`/`latency_report` at the reporting seam.
-No PRODUCT.md edits — the RFC is the surface source of truth once approved.
+genre of PR); the e2e suite grows shape checks for both the crossed and the
+no-crossing variants plus the requires-spike one-liner. Owed same-PR doc
+work ships with the code, not later: rustdoc on the report struct and
+program parser (this RFC's formulas + null case), `--help` lines for
+`--latency-report` and the `--fake-audio` grammar, and an "Instrumentation"
+subsection in ARCHITECTURE.md locating `--fps-report`/`--latency-report` at
+the reporting seam.

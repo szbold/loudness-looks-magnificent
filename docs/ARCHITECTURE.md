@@ -87,7 +87,7 @@ depends on wall-clock timing, real audio devices, network, or a real GPU
 
 ## Performance instrumentation (spec §9)
 
-- `--fps-report` emits JSON frame stats (mean/p95/p99, count).
+- `--fps-report` emits JSON frame stats (p50/p95/p99, count).
 - Latency probe: fake source emits a spike at a recorded T0; instrumentation
   logs the first frame crossing the mapped threshold → wire-to-frame ms.
 - These are product features (FR-M1-6), not debug tooling: agents and CI rely
